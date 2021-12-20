@@ -1,70 +1,204 @@
-# Getting Started with Create React App
+# 컴포넌트 간 통신
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 하위 컴포넌트 변경하기
 
-## Available Scripts
+- A의 button 을 클릭하여 E 를 변경하려면
 
-In the project directory, you can run:
+  1. `<A />` 컴포넌트에서 button 에 onClick 이벤트를 만들고,
+  2. button을 클릭하면, `<A />`의 state를 변경하여, `<B />`로 내려주는 props를 변경
+  3. `<B />`의 props 가 변경되면, `<C />` 의 props 에 전달
+  4. `<C />`의 props 가 변경되면, `<D />` 의 props 에 전달
+  5. `<D />`의 props 가 변경되면, `<E />` 의 props 에 전달
 
-### `npm start`
+```javascript
+// A 컴포넌트
+<div>
+  <B />
+  <button>클릭</button>
+</div>
+================================
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+// B 컴포넌트
+<div>
+  <C />
+</div>
+================================
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+// C 컴포넌트
+<div>
+  <D />
+</div>
+================================
 
-### `npm test`
+// D 컴포넌트
+<div>
+  <E />
+</div>
+================================
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+// E 컴포넌트
+<div>
+  {props.value}
+</div>
+================================
+```
 
-### `npm run build`
+```javascript
+import { useState } from "react";
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+export default function A() {
+  const [value, setValue] = useState("아직 안바뀜");
+  return (
+    <div>
+      <B value={value} />
+      <button onClick={click}>E 의 값을 바꾸기</button>
+    </div>
+  );
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  function click() {
+    setValue("E의 값을 변경");
+  }
+}
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+function B({ value }) {
+  return (
+    <div>
+      <p>여긴 B</p>
+      <C value={value} />
+    </div>
+  );
+}
 
-### `npm run eject`
+function C({ value }) {
+  return (
+    <div>
+      <p>여긴 C</p>
+      <D value={value} />
+    </div>
+  );
+}
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+function D({ value }) {
+  return (
+    <div>
+      <p>여긴 D</p>
+      <E value={value} />
+    </div>
+  );
+}
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+function E({ value }) {
+  return (
+    <div>
+      <p>여긴 E</p>
+      <h3>{value}</h3>
+    </div>
+  );
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 상위 컴포넌트 변경하기
 
-## Learn More
+- E의 button 을 클릭하여 A 의 p를 변경하려면
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  1. `<A />`에 함수를 만들고, 그 함수 안에 state를 변경하도록 구현, 그 변경으로 인해 p 안의 내용을 변경.
+  2. 만들어진 함수를 props 에 넣어서, `<B />`로 전달
+  3. `<B />`의 props 의 함수를, `<C />` 의 props 로 전달
+  4. `<C />`의 props 의 함수를, `<D />` 의 props 로 전달
+  5. `<D />`의 props 의 함수를, `<E />` 의 props 로 전달, `<E />`에서 클릭하면 props로 받은 함수를 실행
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  <br>
 
-### Code Splitting
+```javascript
+// A 컴포넌트
+<div>
+  <B />
+  <p>{state.value}</p>
+</div>
+================================
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+// B 컴포넌트
+<div>
+  <C />
+</div>
+================================
 
-### Analyzing the Bundle Size
+// C 컴포넌트
+<div>
+  <D />
+</div>
+================================
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+// D 컴포넌트
+<div>
+  <E />
+</div>
+================================
 
-### Making a Progressive Web App
+// E 컴포넌트
+<div>
+  <button>클릭</button>
+</div>
+================================
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```
 
-### Advanced Configuration
+<br>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```javascript
+// 상위 컴포넌트 변경하기
 
-### Deployment
+import { useState } from "react";
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+export default function A() {
+  const [value, setValue] = useState("아직 안바뀜");
+  return (
+    <div>
+      <p>{value}</p>
+      <B setValue={setValue} />
+    </div>
+  );
+}
 
-### `npm run build` fails to minify
+function B({ setValue }) {
+  return (
+    <div>
+      <p>여긴 B</p>
+      <C setValue={setValue} />
+    </div>
+  );
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+function C({ setValue }) {
+  return (
+    <div>
+      <p>여긴 C</p>
+      <D setValue={setValue} />
+    </div>
+  );
+}
+
+function D({ setValue }) {
+  return (
+    <div>
+      <p>여긴 D</p>
+      <E setValue={setValue} />
+    </div>
+  );
+}
+
+function E({ setValue }) {
+  return (
+    <div>
+      <p>여긴 E</p>
+      <button onClick={click}>클릭</button>
+    </div>
+  );
+
+  function click() {
+    setValue("A 의 값을 변경");
+  }
+}
+```
